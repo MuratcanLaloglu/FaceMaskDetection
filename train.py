@@ -19,15 +19,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-# başlangıç ​​öğrenme oranını, eğitilecek dönem sayısını belirleyen parametreler.
+# başlangıç ​​öğrenme oranını, eğitilecek devir sayısını belirleyen parametreler.
 INIT_LR = 1e-4
 EPOCHS = 10  # yapay sinir ağı eğitimimizin süresini etkiler ancak kesinliğinide arttırır ben 10-15 arası öneriyorum 1-2 saat eğitim sürüyor
 BS = 32
 
 DIRECTORY = r"dataset"
 CATEGORIES = ["with_mask", "without_mask"]
-
-# veri kümesi dizinimizdeki görüntülerin listesini alın, ardından veri listesini (yani görüntüler) ve sınıf görüntülerini başlatın
 
 print("[INFO] loading images...")
 
@@ -45,7 +43,6 @@ for category in CATEGORIES:
         data.append(image)
         labels.append(category)
 
-# etiketlerde tek sıcak kodlama gerçekleştirin
 lb = LabelBinarizer()
 labels = lb.fit_transform(labels)
 labels = to_categorical(labels)
@@ -56,7 +53,7 @@ labels = np.array(labels)
 (trainX, testX, trainY, testY) = train_test_split(data, labels,
                                                   test_size=0.20, stratify=labels, random_state=42)
 
-# veri büyütme için eğitim görüntü oluşturucusunu oluşturun
+# veri büyütme için görüntü oluşturucu oluşturun
 aug = ImageDataGenerator(
     rotation_range=20,
     zoom_range=0.15,
@@ -78,7 +75,7 @@ headModel = Dense(128, activation="relu")(headModel)
 headModel = Dropout(0.5)(headModel)
 headModel = Dense(2, activation="softmax")(headModel)
 
-# kafa FC modelini temel modelin üstüne yerleştirin (bu, eğiteceğimiz gerçek model olacaktır)
+# baş FC modelini temel modelin üstüne yerleştirin (bu, eğiteceğimiz gerçek model olacaktır)
 model = Model(inputs=baseModel.input, outputs=headModel)
 
 # temel modeldeki tüm katmanlar üzerinde döngü yapın ve ilk eğitim sürecinde güncellenmemeleri için onları dondurun
@@ -111,7 +108,7 @@ predIdxs = model.predict(testX, batch_size=BS)
 
 predIdxs = np.argmax(predIdxs, axis=1)
 
-# güzel biçimlendirilmiş bir sınıflandırma raporu gösterin
+# sınıflandırma raporu gösterin
 
 print(classification_report(testY.argmax(axis=1), predIdxs,
                             target_names=lb.classes_))

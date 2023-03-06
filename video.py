@@ -10,7 +10,7 @@ import cv2
 import os
 #anaprogramı barındıran def fonksiyonu
 def detect_and_predict_mask(frame, faceNet, maskNet):
-	# çerçevenin boyutlarını yakalama ve ondan bir damla oluşturma kodu
+	# çerçevenin boyutlarını yakalama
 	(h, w) = frame.shape[:2]
 	blob = cv2.dnn.blobFromImage(frame, 1.0, (224, 224),
 		(104.0, 177.0, 123.0))
