@@ -19,9 +19,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-# başlangıç ​​öğrenme oranını, eğitilecek devir sayısını belirleyen parametreler.
 INIT_LR = 1e-4
-EPOCHS = 10  # yapay sinir ağı eğitimimizin süresini etkiler ancak kesinliğinide arttırır ben 10-15 arası öneriyorum 1-2 saat eğitim sürüyor
+EPOCHS = 10  
 BS = 32
 
 DIRECTORY = r"dataset"
@@ -53,7 +52,6 @@ labels = np.array(labels)
 (trainX, testX, trainY, testY) = train_test_split(data, labels,
                                                   test_size=0.20, stratify=labels, random_state=42)
 
-# veri büyütme için görüntü oluşturucu oluşturun
 aug = ImageDataGenerator(
     rotation_range=20,
     zoom_range=0.15,
@@ -63,11 +61,9 @@ aug = ImageDataGenerator(
     horizontal_flip=True,
     fill_mode="nearest")
 
-# MobileNetV2 ağını yükleyin, baş FC katman setlerinin kapalı kalmasını sağlayın
 baseModel = MobileNetV2(weights="imagenet", include_top=False,
                         input_tensor=Input(shape=(224, 224, 3)))
 
-# temel modelin üstüne yerleştirilecek modelin başını oluşturun
 headModel = baseModel.output
 headModel = AveragePooling2D(pool_size=(7, 7))(headModel)
 headModel = Flatten(name="flatten")(headModel)
@@ -75,22 +71,18 @@ headModel = Dense(128, activation="relu")(headModel)
 headModel = Dropout(0.5)(headModel)
 headModel = Dense(2, activation="softmax")(headModel)
 
-# baş FC modelini temel modelin üstüne yerleştirin (bu, eğiteceğimiz gerçek model olacaktır)
 model = Model(inputs=baseModel.input, outputs=headModel)
 
-# temel modeldeki tüm katmanlar üzerinde döngü yapın ve ilk eğitim sürecinde güncellenmemeleri için onları dondurun
 
 for layer in baseModel.layers:
     layer.trainable = False
 
-# modelimizi derleyin
 
 print("[INFO] compiling model...")
 opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
 model.compile(loss="binary_crossentropy", optimizer=opt,
               metrics=["accuracy"])
 
-# ağın başını eğitmek
 
 print("[INFO] training head...")
 H = model.fit(
@@ -100,15 +92,12 @@ H = model.fit(
     validation_steps=len(testX) // BS,
     epochs=EPOCHS)
 
-# test setiyle ilgili tahminlerde bulunun
 print("[INFO] evaluating network...")
 predIdxs = model.predict(testX, batch_size=BS)
 
-# test setindeki her bir görüntü için, karşılık gelen en büyük tahmin edilen olasılığa sahip etiketin dizinini bulmamız gerekir
 
 predIdxs = np.argmax(predIdxs, axis=1)
 
-# sınıflandırma raporu gösterin
 
 print(classification_report(testY.argmax(axis=1), predIdxs,
                             target_names=lb.classes_))
