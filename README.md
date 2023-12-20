@@ -17,8 +17,9 @@ The project is organized into two main scripts:
 
 - Install the required Python packages:
 
-  
+  ```
   pip install tensorflow opencv-python imutils scikit-learn matplotlib
+  ```
   
 # Running Real-time Mask Detection
 Run the training script:
