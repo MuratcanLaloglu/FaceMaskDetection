@@ -167,3 +167,5 @@ cython_debug/
 *.PNG 
 *.jpeg
 *.JPEG
+*.webp
+*.jpg_1088Wx1632H
